@@ -35,7 +35,7 @@ def findBestValue(distanceMatrix):
 f_list = []
 forward_result = []
 distance_measure = 'euclidean'
-features = 10
+features = 5
 
 
 # find initial best tuple
@@ -86,7 +86,7 @@ print "Odorant list in sorted order"
 for i in np.arange(features):
     print i, ":", hallem.odorant_list[f_list[i]]
 
-fig = pl.figure(figsize=(20, 8), facecolor='w', edgecolor='k')
+fig = pl.figure(figsize=(23, 8), facecolor='w', edgecolor='k')
 pl.title("Forward Selection")
 pl.subplot(141)
 pl.plot(range(0, len(forward_result)), forward_result)
@@ -96,8 +96,7 @@ pl.title("progressing Euclidean Distance")
 
 pl.subplot(142)
 p = data[:, f_list[0:features]]
-pl.title("Dendrogram")
-pl.xlabel("Euclidean Distance between glomeruli with " + str(features) + " features")
+pl.xlabel("Euclidean Distance between \nglomeruli with " + str(features) + " features")
 pl.ylabel("Glomerulus")
 
 link = linkage(distance.pdist(p, distance_measure), method="single")
@@ -108,6 +107,7 @@ pl.subplot(143)
 pl.pcolor(sorted_list)
 pl.ylim((0, 23))
 pl.xlabel("Odorant")
+pl.title("Heat Map of \nGlomeruli Activity")
 pl.colorbar()
 
 pl.subplot(144)
@@ -119,4 +119,5 @@ for i in range(0, len(sorted_list)):
     pl.ylim((-.5, 22.5))
     pl.xlim((-.5, features))
 
-pl.show()
+#pl.show()
+pl.savefig("figures/forward_" + distance_measure + "_" + str(features) + ".png")
