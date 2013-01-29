@@ -4,11 +4,7 @@ import csv
 import numpy as np
 
 
-"""
-    The Hallem Data nicely prepared for you
-"""
 class Hallem(object):
-
     def __init__(self):
         self.data = []
         self.or_list = None
@@ -28,4 +24,4 @@ class Hallem(object):
         self.odorant_list = self.data[2:, 0]
 
     def get_activation_matrix(self):
-        return np.asarray(self.data[2:, 6:], dtype=float)
+        return np.asarray(self.data[3:, 6:], dtype=float)
