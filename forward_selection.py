@@ -8,14 +8,19 @@ Based on that a dendrogram and a fingerprint is plotted.
 
 Distance measure can be changed.
 """
+import datetime
+
 import pylab as pl
 import numpy as np
 from scipy.spatial import distance
 from scipy.cluster.hierarchy import linkage
 from scipy.cluster.hierarchy import dendrogram
 
+import toolbox
 from data import Hallem
 
+
+start = datetime.datetime.now()
 
 hallem = Hallem()
 
@@ -24,15 +29,12 @@ columns = len(data[0])
 
 pl.close()
 
-
-def findBestValue(distanceMatrix):
-    return np.min(distanceMatrix)
-
-
 f_list = []
 forward_result = []
-distance_measure = 'euclidean'
-features = 10
+# distance_measure = 'euclidean'
+distance_measure = 'noisy'
+noise_threshold = 20
+features = 5
 
 
 # find initial best tuple
@@ -45,8 +47,8 @@ for i in range(0, columns):
         f = list([i])
         f.append(j)
         # take just the columns f from the whole data and compute the distance matrix
-        dm = distance.pdist(data[:, f], distance_measure)
-        min_value = findBestValue(dm)
+        dm = toolbox.compute_distance_matrix(data[:, f], distance_measure, noise_threshold)
+        min_value = toolbox.findBestValue(dm)
 
         if min_value > max_value:
             max_value = min_value
@@ -70,8 +72,9 @@ while len(f_list) < columns:
         if i not in f_list:
             f = list(f_list)
             f.append(i)
-            dm = distance.pdist(data[:, f], distance_measure)
-            min_value = findBestValue(dm)
+
+            dm = toolbox.compute_distance_matrix(data[:, f], distance_measure, noise_threshold)
+            min_value = toolbox.findBestValue(dm)
 
             if min_value > max_value:
                 max_value = min_value
@@ -97,7 +100,7 @@ p = data[:, f_list[0:features]]
 pl.xlabel("Euclidean Distance between \nglomeruli with " + str(features) + " features")
 pl.ylabel("Glomerulus")
 
-link = linkage(distance.pdist(p, distance_measure), method="single")
+link = linkage(distance.pdist(p, 'euclidean'), method="single")
 dend = dendrogram(link, labels=hallem.or_list, orientation="right")
 sorted_list = p[dend["leaves"]]
 
@@ -118,4 +121,9 @@ for i in range(0, len(sorted_list)):
     pl.xlim((-.5, features))
     pl.xticks(np.arange(features), hallem.odorant_list[f_list[:features]], rotation="vertical")
     #pl.show()
-    #pl.savefig("figures/forward_" + distance_measure + "_" + str(features) + ".png")
+
+pl.savefig("figures/forward_" + distance_measure + "_" + str(features) + ".png")
+
+end = datetime.datetime.now()
+
+print "runtime:", (end - start).seconds, "sec."

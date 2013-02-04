@@ -32,31 +32,39 @@ def findBestValue(distanceMatrix):
 
 f_list = []
 b_list = range(columns)
+
 backward_result = []
 distance_measure = 'euclidean'
-features = 7
+
+dm = distance.pdist(data, distance_measure)
+min_value = findBestValue(dm)
+backward_result.append(min_value)
+
+features = 3
 
 
 ## backward elimination
 
+
+
 # repeat until every column is taken into account
 while len(b_list) > 0:
-    minimum = 20000
+    minimum = -1
     index = -1
 
-    # iterate over all glomeruli
-    for i in range(0, columns):
-        if i in b_list:
+    # iterate over all odorant
+    for odor in range(0, columns):
+        if odor in b_list:
             f = list(b_list)
-            f.remove(i)
+            f.remove(odor)
 
             # take just the columns f from the whole data and compute the distance matrix
             dm = distance.pdist(data[:, f], distance_measure)
             min_value = findBestValue(dm)
 
-            if min_value < minimum:
+            if min_value > minimum:
                 minimum = min_value
-                index = i
+                index = odor
     f_list.append(index)
     b_list.remove(index)
     backward_result.append(minimum)
@@ -90,10 +98,10 @@ pl.colorbar()
 
 pl.subplot(144)
 pl.title("Fingerprint")
-for i in range(0, len(sorted_list)):
-    x = range(0, len(sorted_list[i]))
-    y = [i] * len(sorted_list[i])
-    pl.scatter(x, y, s=sorted_list[i], c="grey", alpha=.75)
+for odor in range(0, len(sorted_list)):
+    x = range(0, len(sorted_list[odor]))
+    y = [odor] * len(sorted_list[odor])
+    pl.scatter(x, y, s=sorted_list[odor], c="grey", alpha=.75)
     pl.ylim((-.5, 22.5))
     pl.xlim((-.5, features))
     pl.xticks(arange(features), hallem.odorant_list[f_list[-features:]], rotation="vertical")
