@@ -88,6 +88,8 @@ for i in np.arange(features):
 
 fig = pl.figure(figsize=(25, 10), facecolor='w', edgecolor='k')
 fig.autofmt_xdate()
+
+pl.suptitle('Forward selection with ' + str(features) + " features")
 pl.title("Forward Selection")
 pl.subplot(141)
 pl.plot(range(0, len(forward_result)), forward_result)
@@ -116,7 +118,10 @@ pl.title("Fingerprint")
 for i in range(0, len(sorted_list)):
     x = range(0, len(sorted_list[i]))
     y = [i] * len(sorted_list[i])
-    pl.scatter(x, y, s=sorted_list[i], c="grey", alpha=.75)
+
+    values = sorted_list[i]
+    pl.scatter(x, y, s=values, c="green", alpha=.75)
+    pl.scatter(x, y, s=values * -1, c="red", marker='s', alpha=1)
     pl.ylim((-.5, 22.5))
     pl.xlim((-.5, features))
     pl.xticks(np.arange(features), hallem.odorant_list[f_list[:features]], rotation="vertical")

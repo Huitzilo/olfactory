@@ -24,4 +24,4 @@ class Hallem(object):
         self.odorant_list = self.data[2:, 0]
 
     def get_activation_matrix(self):
-        return np.asarray(self.data[3:, 6:], dtype=float)
+        return np.asarray(self.data[2:, 6:], dtype=float)

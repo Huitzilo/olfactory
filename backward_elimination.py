@@ -14,8 +14,8 @@ import numpy as np
 from scipy.spatial import distance
 from scipy.cluster.hierarchy import linkage
 from scipy.cluster.hierarchy import dendrogram
-
 from data import Hallem
+import toolbox
 
 
 hallem = Hallem()
@@ -25,23 +25,22 @@ columns = len(data[0])
 
 pl.close()
 
-
-def findBestValue(distanceMatrix):
-    return np.min(distanceMatrix)
-
-
 f_list = []
 b_list = range(columns)
 
 backward_result = []
 distance_measure = 'euclidean'
+# distance_measure = 'noisy'
+noise_threshold = 20
+features = 5
 
-dm = distance.pdist(data, distance_measure)
-min_value = findBestValue(dm)
-backward_result.append(min_value)
+dm = toolbox.compute_distance_matrix(data, distance_measure, noise_threshold)
+local_min = toolbox.findBestValue(dm, len(data[0]), len(data[0]))
+backward_result.append(local_min)
 
-features = 3
-
+additional = ''
+if distance_measure == 'noisy':
+    additional = "_" + str(noise_threshold)
 
 ## backward elimination
 
@@ -49,7 +48,7 @@ features = 3
 
 # repeat until every column is taken into account
 while len(b_list) > 0:
-    minimum = -1
+    maximum = -100
     index = -1
 
     # iterate over all odorant
@@ -59,40 +58,47 @@ while len(b_list) > 0:
             f.remove(odor)
 
             # take just the columns f from the whole data and compute the distance matrix
-            dm = distance.pdist(data[:, f], distance_measure)
-            min_value = findBestValue(dm)
+            dm = toolbox.compute_distance_matrix(data[:, f], distance_measure, noise_threshold)
+            local_min = toolbox.findBestValue(dm, len(f), len(data[0]))
 
-            if min_value > minimum:
-                minimum = min_value
+            if local_min > maximum:
+                maximum = local_min
                 index = odor
+
     f_list.append(index)
     b_list.remove(index)
-    backward_result.append(minimum)
+    backward_result.append(maximum)
 
 print "Odorant list in sorted order in which they were removed from the dataset"
 print hallem.odorant_list[f_list[-features:]]
 
+
+#max_at = np.where(backward_result, np.max(backward_result))
 fig = pl.figure(figsize=(23, 8), facecolor='w', edgecolor='k')
 fig.autofmt_xdate()
+pl.suptitle('Backward elimination with ' + str(features) + " features")
 pl.title("Backward Elimination")
 pl.subplot(141)
 pl.plot(range(0, len(backward_result)), backward_result[::-1])
+#pl.plot(max_at, backward_result[max_at],'rs')
 pl.xlabel("#features")
-pl.ylabel("min-min euclidean distance")
-pl.title("progressing Euclidean Distance")
+pl.ylabel("max-min euclidean distance")
+title = "progressing Euclidean Distance " + additional
+pl.title(title)
 
 pl.subplot(142)
-p = data[:, f_list[-features:]]
+sub_list = f_list[:-features - 1:-1]
+p = data[:, sub_list]
 pl.xlabel("Euclidean Distance between \nglomeruli with " + str(features) + " features")
 pl.ylabel("Glomerulus")
-link = linkage(distance.pdist(p, distance_measure), method="single")
+link = linkage(distance.pdist(p, 'euclidean'), method="single")
 dend = dendrogram(link, labels=hallem.or_list, orientation="right")
 sorted_list = p[dend["leaves"]]
 
 pl.subplot(143)
 pl.pcolor(sorted_list)
 pl.ylim((0, 23))
-pl.xticks(arange(.5, .5 + features), hallem.odorant_list[f_list[-features:]], rotation="vertical")
+pl.xticks(arange(.5, .5 + features), hallem.odorant_list[sub_list], rotation="vertical")
 pl.title("Heat Map of \nGlomeruli Activity")
 pl.colorbar()
 
@@ -101,10 +107,16 @@ pl.title("Fingerprint")
 for odor in range(0, len(sorted_list)):
     x = range(0, len(sorted_list[odor]))
     y = [odor] * len(sorted_list[odor])
-    pl.scatter(x, y, s=sorted_list[odor], c="grey", alpha=.75)
+    values = sorted_list[odor]
+    pl.scatter(x, y, s=values, c="green", alpha=.75)
+    pl.scatter(x, y, s=values * -1, c="red", alpha=1)
+
     pl.ylim((-.5, 22.5))
     pl.xlim((-.5, features))
-    pl.xticks(arange(features), hallem.odorant_list[f_list[-features:]], rotation="vertical")
+    pl.xticks(arange(features), hallem.odorant_list[sub_list], rotation="vertical")
 
 #pl.show()
-pl.savefig("figures/backward_" + distance_measure + "_" + str(features) + ".png")
+
+
+
+pl.savefig("figures/backward_" + distance_measure + "_" + str(features) + additional + ".png")
