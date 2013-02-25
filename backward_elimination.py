@@ -2,6 +2,7 @@
 # encoding: utf-8
 """
 
+
 Naive implementation of backward elimination.
 Progress of optimization criteria is plotted.
 Based on that a dendrogram and a fingerprint is plotted.
@@ -14,13 +15,21 @@ import numpy as np
 from scipy.spatial import distance
 from scipy.cluster.hierarchy import linkage
 from scipy.cluster.hierarchy import dendrogram
+from sklearn.decomposition import PCA
+
 from data import Hallem
 import toolbox
 
 
 hallem = Hallem()
 
+#data = hallem.get_activation_matrix()
 data = np.transpose(hallem.get_activation_matrix()) # Glomeruli x Odorants instead of Odorants x Glomeruli
+x = PCA()
+x.fit(data)
+
+data = np.dot(x.components_[0:5], np.transpose(data)) # PCA reduction
+
 columns = len(data[0])
 
 pl.close()
@@ -43,15 +52,12 @@ if distance_measure == 'noisy':
     additional = "_" + str(noise_threshold)
 
 ## backward elimination
-
-
-
 # repeat until every column is taken into account
 while len(b_list) > 0:
     maximum = -100
     index = -1
 
-    # iterate over all odorant
+    # iterate over all odorants
     for odor in range(0, columns):
         if odor in b_list:
             f = list(b_list)
@@ -87,6 +93,7 @@ title = "progressing Euclidean Distance " + additional
 pl.title(title)
 
 pl.subplot(142)
+data = np.transpose(hallem.get_activation_matrix()) # Glomeruli x Odorants instead of Odorants x Glomeruli
 sub_list = f_list[:-features - 1:-1]
 p = data[:, sub_list]
 pl.xlabel("Euclidean Distance between \nglomeruli with " + str(features) + " features")
@@ -94,6 +101,12 @@ pl.ylabel("Glomerulus")
 link = linkage(distance.pdist(p, 'euclidean'), method="single")
 dend = dendrogram(link, labels=hallem.or_list, orientation="right")
 sorted_list = p[dend["leaves"]]
+
+print link
+print "min", np.min(link[:, 2]), "max", np.max(link[:, 2])
+print "mean", np.mean(link[:, 2]), "std", np.std(link[:, 2])
+
+#print dend
 
 pl.subplot(143)
 pl.pcolor(sorted_list)
@@ -117,6 +130,4 @@ for odor in range(0, len(sorted_list)):
 
 #pl.show()
 
-
-
-pl.savefig("figures/backward_" + distance_measure + "_" + str(features) + additional + ".png")
+pl.savefig("figures/backward_pca_" + distance_measure + "_" + str(features) + additional + ".png")
