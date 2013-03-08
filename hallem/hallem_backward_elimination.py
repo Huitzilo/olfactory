@@ -15,9 +15,8 @@ import numpy as np
 from scipy.spatial import distance
 from scipy.cluster.hierarchy import linkage
 from scipy.cluster.hierarchy import dendrogram
-from sklearn.decomposition import PCA
 
-from data import Hallem
+from hallem.data import Hallem
 import toolbox
 
 
@@ -25,10 +24,10 @@ hallem = Hallem()
 
 #data = hallem.get_activation_matrix()
 data = np.transpose(hallem.get_activation_matrix()) # Glomeruli x Odorants instead of Odorants x Glomeruli
-x = PCA()
-x.fit(data)
-
-data = np.dot(x.components_[0:5], np.transpose(data)) # PCA reduction
+# x = PCA()
+# x.fit(data)
+#
+# data = np.dot(x.components_[0:5], np.transpose(data)) # PCA reduction
 
 columns = len(data[0])
 
@@ -130,4 +129,4 @@ for odor in range(0, len(sorted_list)):
 
 #pl.show()
 
-pl.savefig("figures/backward_pca_" + distance_measure + "_" + str(features) + additional + ".png")
+pl.savefig("figures/backward3_" + distance_measure + "_" + str(features) + additional + ".png")

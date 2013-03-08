@@ -3,12 +3,11 @@
 import pylab as pl
 import numpy as np
 
-import forward_selection
-import backward_elimination
+from hallem import hallem_backward_elimination, forward_selection
 
 
 x = forward_selection.forward_result
-y = backward_elimination.backward_result[1:]
+y = hallem_backward_elimination.backward_result[1:]
 y = y[::-1]
 
 print len(x)

@@ -2,11 +2,7 @@
 # encoding: utf-8
 """
 
-Naive implementation of backward elimination.
-Progress of optimization criteria is plotted.
-Based on that a dendrogram and a fingerprint is plotted.
-
-Distance measure can be changed.
+k - means test script
 """
 import random
 
@@ -18,7 +14,7 @@ from scipy.cluster.hierarchy import linkage
 from scipy.cluster.hierarchy import dendrogram
 from sklearn.cluster import KMeans
 
-from data import Hallem
+from hallem.data import Hallem
 
 
 hallem = Hallem()

@@ -17,7 +17,7 @@ from scipy.cluster.hierarchy import linkage
 from scipy.cluster.hierarchy import dendrogram
 
 import toolbox
-from data import Hallem
+from hallem.data import Hallem
 
 
 start = datetime.datetime.now()
@@ -31,8 +31,8 @@ pl.close()
 
 f_list = []
 forward_result = []
-# distance_measure = 'euclidean'
-distance_measure = 'noisy'
+distance_measure = 'euclidean'
+# distance_measure = 'noisy'
 noise_threshold = 20
 features = 5
 
