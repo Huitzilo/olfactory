@@ -40,7 +40,7 @@ backward_result = []
 distance_measure = 'euclidean'
 # distance_measure = 'noisy'
 noise_threshold = 20
-features = 5
+features = 20
 
 dm = toolbox.compute_distance_matrix(data, distance_measure, noise_threshold)
 local_min = toolbox.findBestValue(dm, len(data[0]), len(data[0]))
