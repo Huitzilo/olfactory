@@ -9,7 +9,6 @@ from hallem.data import Hallem
 hallem = Hallem()
 data = np.transpose(hallem.get_activation_matrix())
 
-
 def generate_samples(samples=100, sd=10):
     big_matrix = []
 
