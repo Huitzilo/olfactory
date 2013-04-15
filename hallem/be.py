@@ -22,8 +22,8 @@ pl.close()
 print "Odorant list in sorted order in which they were removed from the dataset"
 print hallem.odorant_list[feature_list[-features:]]
 
-features = 5
-path = "figures/hallem_be_" + str(features) + ".png"
+features = 4
+path = "figures/hallem_be_min_" + str(features) + ".png"
 title = 'Backward Elimination of Hallem'
 feature_names = hallem.odorant_list
 data_names = hallem.or_list

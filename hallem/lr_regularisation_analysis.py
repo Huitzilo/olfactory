@@ -112,7 +112,7 @@ for index in indices:
     lr.fit(data[:, odorants], range(data.shape[0]))
     a = []
     for sd in sd_range:
-        samples, labels = sample_generator.generate_samples(sd=sd)
+        samples, labels = sample_generator.generate_samples(noise=sd)
 
         c = 1000
         output = lr.predict(samples[:, odorants])

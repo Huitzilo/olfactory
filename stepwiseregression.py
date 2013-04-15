@@ -20,7 +20,7 @@ def backward_elimination(data, distance_measure='euclidean'):
     -------
     f : list
         A list of the indices in the order they where removed from the feature set.
-    b : list
+    br : list
         A list of the optimal values after a feature was removed.
     """
     columns = len(data[0])
@@ -57,3 +57,67 @@ def backward_elimination(data, distance_measure='euclidean'):
         b.remove(index)
         br.append(maximum)
     return f, br
+
+
+def forward_selection(data, distance_measure='euclidean'):
+    """
+    Performs a forward selection based on the given data.
+
+
+    Parameters
+    ----------
+    data:  must be a matrix consisting solely of digits
+
+    Returns
+    -------
+    f : list
+        A list of the indices in the order they where added to the feature set.
+    fr : list
+        A list of the optimal values after a feature was included.
+    """
+    f = []
+    fr = []
+    columns = len(data[0])
+
+    #
+    # find initial best tuple
+    #
+    max_value = -1
+    index = -1
+
+    # iterate over all glomeruli
+    for i in range(0, columns):
+        for j in range(i, columns):
+            ff = list([i])
+            ff.append(j)
+            # take just the columns ff from the whole data and compute the distance matrix
+            dm = toolbox.compute_distance_matrix(data[:, ff], distance_measure)
+            min_value = toolbox.findBestValue(dm)
+
+            if min_value > max_value:
+                max_value = min_value
+                index = (i, j)
+
+    f.append(index[0])
+    f.append(index[1])
+    fr.append(max_value)
+
+    # repeat until every column is taken into account
+    while len(f) < columns:
+        max_value = -1
+        index = -1
+        for i in range(0, columns):
+            if i not in f:
+                ff = list(f)
+                ff.append(i)
+
+                dm = toolbox.compute_distance_matrix(data[:, ff], distance_measure)
+                min_value = toolbox.findBestValue(dm)
+
+                if min_value > max_value:
+                    max_value = min_value
+                    index = i
+        f.append(index)
+        fr.append(max_value)
+
+    return f, fr

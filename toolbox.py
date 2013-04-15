@@ -12,7 +12,7 @@ from scipy.cluster.hierarchy import dendrogram
 
 
 def findBestValue(distanceMatrix, k=0, n=0):
-    return np.min(distanceMatrix)
+    return np.sort(distanceMatrix)[0]
 
 
 def compute_distance_matrix(matrix, metric='euclidean', noise_threshold=None):
@@ -56,6 +56,7 @@ def plot_stepwise_regression_results(title, feature_names, feature_list, result,
     p = data[:, sub_list]
     pl.xlabel("Euclidean Distance between \nglomeruli with " + str(features) + " features")
     pl.ylabel("Glomerulus")
+    pl.grid()
     link = linkage(distance.pdist(p, 'euclidean'), method="single")
     dend = dendrogram(link, labels=data_names, orientation="right")
     sorted_list = p[dend["leaves"]]
@@ -63,7 +64,7 @@ def plot_stepwise_regression_results(title, feature_names, feature_list, result,
     #print dendrogram
     pl.subplot(143)
     pl.pcolor(sorted_list)
-    pl.ylim((0, 23))
+    pl.ylim((0, len(data_names)))
     feature_list = np.asarray(feature_list)
     pl.xticks(np.arange(.5, .5 + features), feature_names[sub_list], rotation="vertical")
     pl.title("Heat Map of \nGlomeruli Activity")
@@ -78,10 +79,8 @@ def plot_stepwise_regression_results(title, feature_names, feature_list, result,
         pl.scatter(x, y, s=values, c="green", alpha=.75)
         pl.scatter(x, y, s=values * -1, c="red", alpha=1)
 
-        pl.ylim((-.5, 22.5))
+        pl.ylim((-.5, len(data_names)))
         pl.xlim((-.5, features))
-        pl.xticks(np.arange(features), feature_list[sub_list], rotation="vertical")
-
-    print '....', path
+        pl.xticks(np.arange(features), feature_names[sub_list], rotation="vertical")
     pl.savefig(path)
 

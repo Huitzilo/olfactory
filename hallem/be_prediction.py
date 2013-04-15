@@ -102,7 +102,7 @@ for f in range(1, len(top)):
 
     for sd in sd_range:
         output = []
-        samples, labels = sample_generator.generate_samples(sd=sd)
+        samples, labels = sample_generator.generate_samples(noise=sd)
 
         for sample in samples:
             min = 1000000

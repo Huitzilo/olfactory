@@ -25,4 +25,4 @@
 
 *.ipynb
 
-/figures/*
+figures/
