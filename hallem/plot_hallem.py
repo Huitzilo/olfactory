@@ -17,112 +17,47 @@ t = []
 for i in hallem.odorant_list:
     t.append(i.decode("utf8"))
 
-pl.boxplot(np.transpose(hallem.get_activation_matrix()), bootstrap=10000, vert=True)
-pl.xticks(np.arange(1, len(hallem.odorant_list) + 1), t, rotation="vertical")
-pl.savefig("figures/odorant_boxplot.png")
+a = np.transpose(hallem.response)
+b = np.mean(a, axis=0)
+c = np.std(a, axis=0)
 
-pl.figure()
-pl.plot(range(23), hallem.get_activation_matrix()[15])
-pl.savefig("figures/glycerol_activation.png")
+a = (a - b) / c
+d = np.median(a, axis=0)
+sorting = np.argsort(d)
 
-pl.figure()
-pl.plot(range(23), hallem.get_activation_matrix()[43])
-pl.savefig("figures/isobutylacetat_activation.png")
+t = np.asarray(t)
+
+pl.boxplot(a[:, sorting], bootstrap=10000, vert=True)
+pl.xticks(np.arange(1, len(hallem.odorant_list) + 1), t[sorting], rotation="vertical")
+pl.grid()
+pl.savefig("figures/odorant_boxplot_normalized.png")
 
 print hallem.odorant_list[[15, 43]]
-print np.std(hallem.get_activation_matrix(), axis=1)[[15, 43]]
+print np.std(hallem.response, axis=1)[[15, 43]]
 
-# matrix = np.transpose(hallem.get_activation_matrix())
-# matrix = hallem.get_activation_matrix()
-# print matrix.shape
-# means_odorants = np.mean(matrix, axis=1)
-# means_glomeruli = np.mean(matrix, axis=0)
+#creating the odorant spectra figures
+matrix = hallem.response
 
-# stds_odorants = np.std(matrix, axis=1)
-# stds_glomeruli = np.std(matrix, axis=0)
+#plot spectra of top6 Gurobi features in one barplot
+#top6 predicted by gurobi [ 0  6 20 43 82 90]
+top6 = np.asarray([0, 6, 20, 44, 83, 91])
+offset = 5
+pl.figure(figsize=(24, 8))
+x_range = np.arange(0, (len(top6) + offset) * matrix.shape[1], len(top6) + offset)
+colors = ['y', 'r', 'g', 'c', 'grey', 'b']
+for i, v in enumerate(top6):
+    spectrum = matrix[v]
 
+    print x_range + i
+    print spectrum
+    pl.bar(x_range + i, spectrum, width=1, color=colors[i])
 
-
-# print means
-
-#sorted_odorants = np.argsort(x)
-#sorted_glomeruli = np.argsort(y)
-
-#pl.plot(range(len(means_odorants)), )
-#pl.plot(range(len(stds_odorants)), stds_odorants)
-#pl.plot(range(len(stds_glomeruli)), stds_glomeruli)
-#print y[18:23]
-
-
-#index = 21
-#print matrix[:, index], means_glomeruli[index], stds_glomeruli[index]
-#pl.plot(range(len(means_glomeruli)), means_glomeruli[sorted_glomeruli])
-#pl.plot(range(len(stds_glomeruli)), stds_glomeruli[sorted_glomeruli])
-
-#pl.show()
-
-#print np.cov(matrix, rowvar=1)[0]
-
-# M = [[2.5, 2.4],
-#      [0.5, 0.7],
-#      [2.2, 2.9],
-#      [1.9, 2.2],
-#      [3.1, 3.0],
-#      [2.3, 2.7],
-#      [2, 1.6],
-#      [1, 1.1],
-#      [1.5, 1.6],
-#      [1.1, 0.9]]
-
-
-
-
-# x = PCA()
-# x.fit(matrix)
-# print x.explained_variance_ratio_
-
-# corr = []
-# strong_corr = []
-# for i, rowA in enumerate(matrix):
-#     for j, rowB in enumerate(matrix):
-#         if j > i:
-#             c = sp.stats.pearsonr(rowA, rowB)[0]
-#             if c > 0.65:
-#                 print "strong correlation:", i, j, c
-#                 strong_corr.append((i, j, c))
-#             corr.append(c)
-#
-# pl.title("Correlation between glomeruli")
-# pl.xlabel("Pearson Correlation")
-# pl.ylabel("Count")
-# pl.hist(corr, bins=20)
-# pl.savefig("figures/pearson_glomeruli.png")
-#
-# for i in strong_corr:
-#     o1 = i[0]
-#     o2 = i[1]
-#     o1_name = hallem.or_list[o1]
-#     o2_name = hallem.or_list[o2]
-#     pl.figure()
-#     pl.title(o1_name + " against " + o2_name + "| correlation=" + str(i[2]))
-#     pl.plot(matrix[o1], matrix[o2], '.')
-#     pl.xlabel(o1_name)
-#     pl.ylabel(o2_name)
-#     pl.savefig("figures/correlation/" + o1_name + "_" + o2_name + ".png")
-# s = 0
-# for i in x.explained_variance_ratio_:
-#     s += i;
-#     print s, i
-
-
-
-#print np.dot(x.components_ ,np.transpose(M))
-
-
-#for i in x.components_[0:7]:
-#    pl.plot(range(len(i)), i)
-
-#pl.legend(range(0,24))
-#pl.show()
-#19, 20 glom
-#23, 82 odorant
+pl.ylabel("spikes/s")
+pl.xlabel("ORs")
+# pl.ylim((-100, 350))
+pl.xlim((-offset, (len(top6) + offset) * len(spectrum)))
+pl.xticks(x_range + len(top6) / 2, hallem.or_list)
+pl.grid()
+pl.legend(hallem.odorant_list[top6], loc='upper center', bbox_to_anchor=(0.5, 1.1),
+          ncol=len(top6), fancybox=True, shadow=True)
+pl.savefig("figures/spectrum/odorant/top_features_bar.png")

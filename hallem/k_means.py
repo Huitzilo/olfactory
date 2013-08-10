@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 # encoding: utf-8
 """
-
 k - means test script
+
+Testing the feature selection by clustering
 """
 import random
 
@@ -18,11 +19,11 @@ from hallem.data import Hallem
 
 
 hallem = Hallem()
-data = np.transpose(hallem.get_activation_matrix()) # Glomeruli x Odorants instead of Odorants x Glomeruli
+data = np.transpose(hallem.response) # Glomeruli x Odorants instead of Odorants x Glomeruli
 
 features = 5
 km = KMeans(n_clusters=features, init='random', max_iter=100, n_init=10, verbose=0)
-km.fit(hallem.get_activation_matrix())
+km.fit(hallem.response)
 
 centers = km.cluster_centers_
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # encoding: utf-8
 """
-
+    Plotting the results of subset predictions.
 """
 from __future__ import division
 import numpy as np
@@ -9,78 +9,74 @@ import pylab as pl
 from scipy.spatial import distance
 from scipy.cluster.hierarchy import linkage
 from scipy.cluster.hierarchy import dendrogram
+from pylab import *
 
 
-def findBestValue(distanceMatrix, k=0, n=0):
-    return np.sort(distanceMatrix)[0]
+def create_cmap(minimum, maximum):
+    zero = abs(float(minimum) / (maximum - minimum))
 
-
-def compute_distance_matrix(matrix, metric='euclidean', noise_threshold=None):
-    if metric == 'noisy':
-        s = matrix.shape
-        m, n = s
-        dm = np.zeros(m * (m - 1) / 2, )
-        if noise_threshold == None:
-            print "Provide a noise threshold"
-
-        counter = 0
-
-        for i in range(0, m - 1):
-            for j in range(i + 1, m):
-                v = matrix[i] - matrix[j]
-                v[abs(v) < noise_threshold] = 0.
-                dm[counter] = float(np.sqrt((v ** 2).sum()))
-                counter += 1
-
-        return dm
+    if minimum < 0:
+        cdict = {'red': ((0.0, 1.0, 1.0),
+                         (zero, 1.0, 1.0),
+                         (1.0, .0, 1.0)),
+                 'green': ((.0, .0, .0),
+                           (zero, 1.0, 1.0),
+                           (1.0, .0, .0)),
+                 'blue': ((0.0, 0.0, 0.0),
+                          (zero, 1.0, 1.0),
+                          (1.0, 1.0, 1.0))}
     else:
-        return distance.pdist(matrix, metric)
+        cdict = {'red': ((0.0, 1.0, 1.0),
+                         (minimum, 1.0, 1.0),
+                         (1.0, .0, 1.0)),
+                 'green': ((.0, 1.0, 1.0),
+                           (minimum, 1.0, 1.0),
+                           (1.0, .0, .0)),
+                 'blue': ((0.0, 1.0, 1.0),
+                          (minimum, 1.0, 1.0),
+                          (1.0, 1.0, 1.0))}
+    return matplotlib.colors.LinearSegmentedColormap('my_colormap', cdict, 256)
 
 
-def plot_stepwise_regression_results(title, feature_names, feature_list, result, data, data_names, path, features=5):
-    # plotting the progress of the euclidean distance
-    fig = pl.figure(figsize=(23, 8), facecolor='w', edgecolor='k')
+def plot_progress_results(result, features, path, plot_hline=True):
+    fig = pl.figure(figsize=(9, 6), dpi=300, facecolor='w', edgecolor='k')
     fig.autofmt_xdate()
-    pl.suptitle(title + ' with ' + str(features) + " features")
-    pl.title(title)
-    pl.subplot(141)
+    x_coord = features
+
     pl.plot(range(0, len(result)), result[::-1])
+    if plot_hline:
+        pl.axvline(x_coord, color='r')
     pl.xlabel("#features")
+    pl.xticks([0, features, len(result)])
     pl.ylabel("max-min euclidean distance")
-    title = "progressing Euclidean Distance"
-    pl.title(title)
-
-    # plotting dendrogram of eucledean distance between glomeruli
-    pl.subplot(142)
-    sub_list = feature_list[:-features - 1:-1]
-    p = data[:, sub_list]
-    pl.xlabel("Euclidean Distance between \nglomeruli with " + str(features) + " features")
-    pl.ylabel("Glomerulus")
-    pl.grid()
-    link = linkage(distance.pdist(p, 'euclidean'), method="single")
-    dend = dendrogram(link, labels=data_names, orientation="right")
-    sorted_list = p[dend["leaves"]]
-
-    #print dendrogram
-    pl.subplot(143)
-    pl.pcolor(sorted_list)
-    pl.ylim((0, len(data_names)))
-    feature_list = np.asarray(feature_list)
-    pl.xticks(np.arange(.5, .5 + features), feature_names[sub_list], rotation="vertical")
-    pl.title("Heat Map of \nGlomeruli Activity")
-    pl.colorbar()
-
-    pl.subplot(144)
-    pl.title("Fingerprint")
-    for odor in range(0, len(sorted_list)):
-        x = range(0, len(sorted_list[odor]))
-        y = [odor] * len(sorted_list[odor])
-        values = sorted_list[odor]
-        pl.scatter(x, y, s=values, c="green", alpha=.75)
-        pl.scatter(x, y, s=values * -1, c="red", alpha=1)
-
-        pl.ylim((-.5, len(data_names)))
-        pl.xlim((-.5, features))
-        pl.xticks(np.arange(features), feature_names[sub_list], rotation="vertical")
     pl.savefig(path)
 
+
+def plot_fingerprints(title, feature_names, data, data_names, path, xlabel="spikes/s"):
+    features = len(feature_names)
+
+    fig = pl.figure(figsize=(18, 12), dpi=300, facecolor='w', edgecolor='k')
+    fig.autofmt_xdate()
+
+    # plotting dendrogram of eucledean distance between glomeruli
+    pl.suptitle(title)
+    pl.subplot(121)
+    p = data
+    pl.xlabel("Distance in " + xlabel)
+    pl.ylabel("OR")
+    link = linkage(distance.pdist(p, 'euclidean'), method="single")
+    dend = dendrogram(link, labels=data_names, orientation="right", color_threshold=1)
+    sorted_list = p[dend["leaves"]]
+    pl.grid()
+
+    pl.subplot(122)
+    cmap = create_cmap(np.min(sorted_list), np.max(sorted_list))
+    pl.imshow(sorted_list[::-1], cmap=cmap, vmin=np.min(sorted_list), vmax=np.max(sorted_list), interpolation="None",
+              aspect="auto")
+
+    pl.xticks(np.arange(0.5, .5 + features), feature_names, rotation="30", ha='right', fontsize=10)
+    pl.yticks([])
+    cb = pl.colorbar()
+    cb.set_label(xlabel)
+    pl.grid(which="major")
+    pl.savefig(path)

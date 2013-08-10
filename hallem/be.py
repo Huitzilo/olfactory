@@ -3,29 +3,30 @@
 """
 Analysis of Hallem data with backward elimination method.
 """
-import pylab as pl
 import numpy as np
-import stepwiseregression
+import featureselection
 from hallem.data import Hallem
 import toolbox
 
 hallem = Hallem()
+data = np.transpose(hallem.response) # Glomeruli x Odorants instead of Odorants x Glomeruli
 
-data = np.transpose(hallem.get_activation_matrix()) # Glomeruli x Odorants instead of Odorants x Glomeruli
-
-distance_measure = 'euclidean'
-features = 5
-
-feature_list, backward_result = stepwiseregression.backward_elimination(data, distance_measure)
-
-pl.close()
-print "Odorant list in sorted order in which they were removed from the dataset"
-print hallem.odorant_list[feature_list[-features:]]
-
-features = 4
-path = "figures/hallem_be_min_" + str(features) + ".png"
-title = 'Backward Elimination of Hallem'
 feature_names = hallem.odorant_list
 data_names = hallem.or_list
-toolbox.plot_stepwise_regression_results(title, feature_names, feature_list, backward_result, data, data_names, path,
-                                         features)
+features = 6
+
+feature_list, backward_result = featureselection.backward_elimination(data)
+sub_list = feature_list[:-features - 1:-1]
+
+print "Top", str(features), "features"
+print "Score:", backward_result[-features - 1]
+print sub_list
+print feature_names[sub_list]
+
+title = 'Backward Elimination on Hallem with ' + str(features) + " features"
+
+path = "figures/hallem/be/hallem_be_" + str(features) + "_performance.png"
+toolbox.plot_progress_results(backward_result, features, path)
+
+path = "figures/hallem/be/hallem_be_" + str(features) + ".png"
+toolbox.plot_fingerprints(title, feature_names[sub_list], data[:, sub_list], data_names, path)

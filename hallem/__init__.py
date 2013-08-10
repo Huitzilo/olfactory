@@ -1,1 +1,2 @@
-__author__ = 'marcus'
+#!/usr/bin/env python
+# encoding: utf-8

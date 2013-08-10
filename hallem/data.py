@@ -2,26 +2,36 @@
 # encoding: utf-8
 import csv
 import numpy as np
+import os
 
 
 class Hallem(object):
+    '''
+    Loads and prepares the Hallem data
+    '''
+
     def __init__(self):
-        self.data = []
+        self.response = []
         self.or_list = None
         self.odorant_list = None
         self.load_csv()
 
     def load_csv(self):
-        path_to_csv = "data/halemdata.csv"
+        path_to_csv = os.path.join(os.path.dirname(__file__), os.pardir, 'data', 'halemdata.csv')
+        d = []
         with open(path_to_csv) as csvfile:
             reader = csv.reader(csvfile, delimiter=',')
 
             for row in reader:
-                self.data.append(row)
+                d.append(row)
 
-        self.data = np.asarray(self.data)
-        self.or_list = self.data[1, 6:]
-        self.odorant_list = self.data[2:, 0]
+        d = np.asarray(d)
+        self.response = np.asarray(d[2:, 5:], dtype=float)
+        self.or_list = d[1, 5:]
+        self.odorant_list = d[2:, 0]
 
-    def get_activation_matrix(self):
-        return np.asarray(self.data[2:, 6:], dtype=float)
+    def get_odorant_index(self, name):
+        return np.where(self.odorant_list == name)[0][0]
+
+    def get_or_index(self, name):
+        return np.where(self.or_list == name)

@@ -7,37 +7,36 @@ import datetime
 import numpy as np
 from sklearn.linear_model import LogisticRegression
 import matplotlib.pyplot as pl
-
+from mpl_toolkits.mplot3d import Axes3D
 from hallem.data import Hallem
-import sample_generator
+import toydata
 
 
 hallem = Hallem()
-data = np.transpose(hallem.get_activation_matrix())
+data = np.transpose(hallem.response)
 
-big_matrix, labels = sample_generator.generate_samples()
+print data.shape
 
-c_range = np.arange(0.001, 0.05, 0.001)
+big_matrix, labels = toydata.generate_noise_samples_hallem()
+
+c_range = np.arange(0.001, 0.008, 0.00001)
 f = []
 a = []
 b1 = True
 b2 = True
 
-lr = LogisticRegression(penalty='l1', C=100000)
-lr.fit(data, range(data.shape[0]))
-
 print "### regularizationaraitining"
-
 ## Probing over C
 for c in c_range:
     lr = LogisticRegression(penalty='l1', C=c)
     lr.fit(data, range(data.shape[0]))
-    f.append(np.sum(np.sum(np.abs(lr.coef_), 0) > 0))
+    f.append(np.sum(np.sum(np.abs(lr.coef_), axis=0) > 0))
     output = lr.predict(big_matrix)
     accuracy = 1 - np.count_nonzero(output - labels) / float(len(labels))
     a.append(accuracy)
 
-f.remove(0)
+print f
+#f.remove(0)
 f = np.asarray(f)
 
 # f2 = pl.figure(figsize=(15, 5))
@@ -59,13 +58,11 @@ f = np.asarray(f)
 # pl.savefig("figures/lr_regularisation2" + datetime.datetime.now().strftime("%Y-%m-%d_%H%M") + ".jpg")
 
 
-
-
-m = np.unique(f[f < 21])
+m = np.unique(f[f < 11])
+print len(m), m
 indices = []
 for c in m:
     indices.append(np.max(np.where(f == c)))
-
 # pf = []
 # for index in indices:
 #     lr = LogisticRegression(penalty='l1', C=c_range[index])
@@ -95,15 +92,15 @@ for c in m:
 #
 # pl.savefig("figures/lr_regularisation_improved_" + datetime.datetime.now().strftime("%Y-%m-%d_%H%M") + ".jpg")
 
-sd_range = range(1, 161, 5)
+sd_range = range(0, 50, 10)
 
 results = []
 number_f = []
 for index in indices:
 
-    # compute the odorants
     lr = LogisticRegression(penalty='l1', C=c_range[index])
     lr.fit(data, range(data.shape[0]))
+
     odorants = np.where((np.sum(np.abs(lr.coef_), 0)))[0]
     number_f.append(len(odorants))
 
@@ -112,7 +109,7 @@ for index in indices:
     lr.fit(data[:, odorants], range(data.shape[0]))
     a = []
     for sd in sd_range:
-        samples, labels = sample_generator.generate_samples(noise=sd)
+        samples, labels = toydata.generate_noise_samples_hallem(noise=sd)
 
         c = 1000
         output = lr.predict(samples[:, odorants])
@@ -131,20 +128,21 @@ Z = results
 l = [str(x) + "" for x in number_f]
 
 print l
-fig = pl.figure(figsize=(20, 12))
-pl.suptitle("Logistic Regression Classification on 100 Samples per Glomeruli")
-ax = fig.add_subplot(121, projection='3d')
-ax.plot_surface(X, Y, Z, rstride=1, cstride=1, cmap='YlGnBu', vmin=0, vmax=1, linewidth=0)
-ax.set_xlabel('sd noise')
-ax.set_xlim3d(0, np.max(sd_range) + 5)
-ax.w_yaxis.set_ticklabels(l)
-ax.w_yaxis.set_ticks(np.arange(len(l)))
-ax.set_ylabel('#features')
-ax.set_zlabel('accuracy')
-ax.set_zlim3d(0, 1)
-ax.view_init(azim=315)
+fig = pl.figure(figsize=(6, 4))
+# pl.suptitle("Logistic Regression Classification on 100 Samples per Glomeruli")
+pl.suptitle("NN-Classification with features predicted by LR")
+#ax = fig.add_subplot(211, projection='3d')
+# ax.plot_surface(X, Y, Z, rstride=1, cstride=1, cmap='YlGnBu', vmin=0, vmax=1, linewidth=0)
+# ax.set_xlabel('sd noise')
+# ax.set_xlim3d(0, np.max(sd_range) + 5)
+# ax.w_yaxis.set_ticklabels(l)
+# ax.w_yaxis.set_ticks(np.arange(len(l)))
+# ax.set_ylabel('#features')
+# ax.set_zlabel('accuracy')
+# ax.set_zlim3d(0, 1)
+# ax.view_init(azim=315)
 
-ax2 = fig.add_subplot(122)
+ax2 = fig.add_subplot(111)
 im = ax2.imshow(np.transpose(Z), cmap='YlGnBu', interpolation='none', aspect='auto')
 ax2.set_ylabel('sd noise')
 ax2.set_xlabel('#features')
@@ -152,5 +150,7 @@ ax2.xaxis.set_ticklabels(l)
 ax2.xaxis.set_ticks(np.arange(len(l)))
 ax2.yaxis.set_ticklabels(sd_range)
 ax2.yaxis.set_ticks(np.arange(len(sd_range)))
-pl.colorbar(im, orientation='vertical')
-pl.savefig("figures/lr_sd_acc_3d" + datetime.datetime.now().strftime("%Y-%m-%d_%H%M") + ".png")
+cb = pl.colorbar(im, orientation='vertical')
+cb.set_label("accuracy")
+
+pl.savefig("figures/lr_performance_" + datetime.datetime.now().strftime("%Y_%m_%d") + ".png")

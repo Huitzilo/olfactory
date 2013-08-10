@@ -1,28 +1,28 @@
 import pickle
 import csv
 import numpy as np
-import stepwiseregression
+import featureselection
 import toolbox
 
 # preparing the data
 global csvfile, reader, row
-f = open('/Users/marcus/Owncloud/Shared/optStimset/DoOR_resp.pckl', 'receptor_index')
+f = open('data/DoOR_resp.pckl', 'receptor_index')
 data = pickle.load(f)
 f.close()
 
-f = open('/Users/marcus/Owncloud/Shared/optStimset/molname.pckl', 'receptor_index')
+f = open('data/molname.pckl', 'receptor_index')
 mol2name = pickle.load(f)
 f.close()
 
 dorsal_or_names = []
-path_to_csv = "/Users/marcus/OwnCloud/Shared/optStimset/glom_dorsal.csv"
+path_to_csv = "data/glom_dorsal.csv"
 with open(path_to_csv, 'rU') as csvfile:
     reader = csv.reader(csvfile, delimiter=';')
     for row in reader:
         dorsal_or_names.append(row[0])
 
 rep2glom = []
-path_to_csv = "/Users/marcus/OwnCloud/Shared/optStimset/receptor2glom.csv"
+path_to_csv = "data/receptor2glom.csv"
 with open(path_to_csv, 'rU') as csvfile:
     reader = csv.reader(csvfile, delimiter=',')
     reader.next(),
@@ -45,12 +45,12 @@ response[np.where(np.isnan(response))] = 0
 print "number of features: ", len(response[0])
 print "number of datasets: ", len(response[:, 0])
 
-f, b = stepwiseregression.backward_elimination(response)
+f, fr = featureselection.forward_selection(response)
 
-features = 7
+features = 5
 
-path = "figures/door_be_min_" + str(features) + ".png"
-title = 'Backward Elimination of DoOr'
+path = "figures/door_fs_min_" + str(features) + ".png"
+title = 'Forward Selection of DoOr'
 
 feature_names = []
 for i in np.asarray(data['molid']):
@@ -60,4 +60,10 @@ feature_names = np.asarray(feature_names)
 
 data_names = np.asarray(data['receptorid'])[dorsal_index]
 
-toolbox.plot_stepwise_regression_results(title, feature_names, f, b, response, data_names, path, features)
+
+# reversing for plotting
+f = f[::-1]
+fr = fr[::-1]
+
+toolbox.plot_progress_results(fr, title, "figures/door_fs_progress.png")
+toolbox.plot_fingerprints(title, feature_names, response, data_names, path)
