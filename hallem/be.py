@@ -11,7 +11,6 @@ import sample_generator
 from scipy.spatial import distance
 
 hallem = Hallem()
-
 data = np.transpose(hallem.response) # Glomeruli x Odorants instead of Odorants x Glomeruli
 
 feature_names = hallem.odorant_list
