@@ -43,10 +43,11 @@ If you have downloaded and installed Gurobi, it may be necessary to copy gurobip
 `cp -a /usr/local/lib/python2.7/dist-packages/gurobipy/ /home/<your_dir>/.virtualenvs/<your_env>/lib/python2.7/site-packages/`
 
 Now, switch to your virtualenv and check if the following works without errors:
+
 `python -c "import gurobipy"`
 
 ### virtualenv + Gurobi + PyCharm
-To get PyCharm to work with virtualenv and Gurobi you have to manually add the configuration the LD_LIBRARY_PATH parameter:
+To get PyCharm to work with virtualenv and Gurobi you have to manually add theLD_LIBRARY_PATH parameter to the run configuration:
 
             LD_LIBRARY_PATH=/opt/gurobi560/linux64/lib`
 
@@ -80,8 +81,9 @@ __Third__, lets say, you are interested in the six most important features and t
         sub_list = feature_list[:-features - 1:-1]
 
         print "Score:", backward_result[-features - 1]
+        >>> Score: 0.076566239434
         print odorants[sub_list]
-
+        >>> ['trans-vaccenic acid' 'Isoamyl acetate' 'Pyrrolidine' 'o-Cresol' 'Ethyl (R)-3-hydroxybutyrate' 'p-Kresol']
 
 The results can then be plotted via:
 
