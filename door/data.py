@@ -12,6 +12,7 @@ class DoOR(object):
 
     """
 
+    deBruyneIndices = np.array([28, 14, 64, 76, 38, 127, 65, 98, 9, 85]) # indices of deBruyne odorants in DoOR
 
     def __init__(self):
         self.path = os.path.join(os.path.dirname(__file__), os.pardir, 'data')
@@ -107,6 +108,12 @@ class DoOR(object):
         ors_mask = np.in1d(self.or_names, self.rep2glom[glom_mask, 1])
 
         return self.response[ors_mask, :], self.or_names[ors_mask], self.odorant_names
+
+    def get_dorsal_reference_data(self):
+
+      response, or_names, odorants = self.get_dorsal_data()
+      return response[:, self.deBruyneIndices], or_names, odorants[self.deBruyneIndices]
+
 
     def molId_to_name(self, indices):
         """

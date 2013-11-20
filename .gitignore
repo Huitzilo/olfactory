@@ -26,3 +26,11 @@
 *.ipynb
 
 figures/
+
+gurobi.log
+
+/results
+
+/figure
+
+/app/results

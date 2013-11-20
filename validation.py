@@ -3,7 +3,7 @@
 """
     This script should allow you to cross check the results you get from gurobi, be or whatsoever.
     Since we have no test set, like in many machine learning tasks, we generate one from the original data.
-    For each glomerulus we create 100 samples and classify them according to the glomerulus they are based on.
+    For each glomerulus spectrum we create 100 noisy samples and try to reverse classify them according to the glomerulus they are based on.
     For different levels of noise, the accuracy of prediction is measured, e.g. how many labels could be predicted correctly.
 """
 import toydata

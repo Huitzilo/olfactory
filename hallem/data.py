@@ -10,6 +10,8 @@ class Hallem(object):
     Loads and prepares the Hallem data
     """
 
+    deBrunyeIndices = np.array([45, 53, 22, 32, 44, 5, 20, 105, 29, 64])  # indices of deBruyne odorants in Hallem
+
     def __init__(self):
         self.response = []
         self.or_list = None
@@ -35,3 +37,21 @@ class Hallem(object):
 
     def get_or_index(self, name):
         return np.where(self.or_list == name)
+
+    def get_reference_set(self):
+      '''
+      Returns a subset of the Hallem data-set, where only the odorants from (deBruyne, 2001) are selected.
+      This set can be mainly used for performance comparison.
+
+
+      Returns
+      -------
+
+      response :      np.array
+                      Reduced Hallem response matrix only deBruyne odorants selected.
+      ors :           np.array
+                      List of odorant receptors names
+      odorant_list :  np.array
+                      List of deBruyne odorant names.
+      '''
+      return np.transpose(self.response)[:, self.deBrunyeIndices], self.or_list, self.odorant_list[self.deBrunyeIndices]
