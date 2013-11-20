@@ -29,8 +29,6 @@ figures/
 
 gurobi.log
 
-/results
+/results/
 
-/figure
-
-/app/results
+/app/results/
