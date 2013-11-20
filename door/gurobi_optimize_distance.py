@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # encoding: utf-8
-'''
+"""
     Generates a linear programming problem to find the optimal subset for the dorsal DoOR data an solves it actually.
 
     Call this script from the gurobi shell, e.g.
@@ -8,7 +8,7 @@
 
 
     Purpose of this script is to find the maximal distance for a given number of features.
-'''
+"""
 from gurobipy import *
 import numpy as np
 from data import DoOR
@@ -25,7 +25,7 @@ for i, x in enumerate(data):
 
 matrix = np.asarray(matrix)
 print matrix.shape
-number_features = 10
+number_features = 25
 
 try:
     # Create a new model

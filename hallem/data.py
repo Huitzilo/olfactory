@@ -6,9 +6,9 @@ import os
 
 
 class Hallem(object):
-    '''
+    """
     Loads and prepares the Hallem data
-    '''
+    """
 
     def __init__(self):
         self.response = []

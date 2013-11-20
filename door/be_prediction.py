@@ -2,22 +2,20 @@
 # encoding: utf-8
 #
 """
-Analysis of stability of backward prediction.
-
-Since we have no test set, like in many machine learning tasks, we generate one from the original data.
-For each glomerulus we create 100 samples and classify them according to the glomerulus they are based on.
-For different levels of noise, the accuracy of prediction is measured, e.g. how many labels could be predicted correctly.
+Analysis of stability of backward prediction on DoOR dorsal dataset.
 """
 import datetime
 import numpy as np
 import matplotlib.pyplot as pl
 import featureselection
-from hallem.data import Hallem
+from door.data import DoOR
 import validation
 
-data = np.transpose(Hallem().response)
+door = DoOR()
+data, ors, odorants = np.transpose(door.get_dorsal_data())
 
 # compute features
+print data.shape
 feature_list, backward_result = featureselection.backward_elimination(data)
 
 # creating a list of feature lists with increasing size
@@ -27,11 +25,8 @@ for i in range(15):
 
 
 # # levels of noise which will be added
-sd_range = range(0, 50, 10)
+sd_range = np.arange(0, 0.15, 0.01)
 results = validation.validate(data, top, noise=sd_range)
-
-np.set_printoptions(suppress=True, precision=3)
-print results
 
 x = sd_range
 y = np.asarray(range(1, results.shape[0] + 1))
@@ -43,7 +38,7 @@ fig = pl.figure(figsize=(6, 4))
 pl.suptitle("NN-Classification with features predicted by BE")
 ax2 = fig.add_subplot(111)
 im = ax2.imshow(np.transpose(Z), cmap=validation.cmap, interpolation='none', aspect='auto')
-ax2.set_ylabel('$\sigma$')
+ax2.set_ylabel('sd noise')
 ax2.set_xlabel('#features')
 ax2.yaxis.set_ticklabels(sd_range)
 ax2.yaxis.set_ticks(np.arange(len(sd_range)))
@@ -52,4 +47,4 @@ ax2.xaxis.set_ticks(range(len(top)))
 cb = pl.colorbar(im, orientation='vertical')
 cb.set_label("accuracy")
 
-pl.savefig("../figures/be_performance_" + datetime.datetime.now().strftime("%Y_%m_%d") + ".png")
+pl.savefig("../figures/be_door_performance_distorted" + datetime.datetime.now().strftime("%Y_%m_%d") + ".png")

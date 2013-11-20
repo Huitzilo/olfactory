@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 # encoding: utf-8
-'''
+"""
     Generates a linear programming problem to find the optimal subset for the Hallem data an solves it actually.
 
     Call this script from the gurobi shell, e.g.
         gurobi.sh gurobi_optimize_odorants.py
 
     Purpose of this script is to find the minimal number of odorants required to have a minimal distance.
-'''
+"""
 from gurobipy import *
 from data import Hallem
 import numpy as np

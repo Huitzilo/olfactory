@@ -8,9 +8,9 @@ import os
 
 
 class DoOR(object):
-    '''
+    """
 
-    '''
+    """
 
 
     def __init__(self):
@@ -25,9 +25,9 @@ class DoOR(object):
         self.load_rep2glom()
 
     def load_file(self):
-        '''
+        """
             Converting data stored in a file to numpy arrays.
-        '''
+        """
         path_to_file = os.path.join(self.path, 'DoOR_targets.pkl')
         f = open(path_to_file, 'receptor_index')
         p = pickle.load(f)
@@ -45,14 +45,15 @@ class DoOR(object):
 
         #keeping the odorants where there is data, e.g. where standard deviation or mean are unequal to zero
         info_mask = (np.std(self.response, axis=0) != 0) | (np.mean(self.response, axis=0) != 0)
+
         self.response = self.response[:, info_mask]
         self.odorant_molIds = self.odorant_molIds[info_mask]
         self.odorant_names = self.molId_to_name(self.odorant_molIds)
 
     def load_rep2glom(self):
-        '''
+        """
         Loading a file that contains the mapping receptor <--> glomerulus
-        '''
+        """
         #which ors belong to which glom?
         path_to_csv = os.path.join(self.path, "receptor2glom.csv")
         with open(path_to_csv, 'rU') as csvfile:
@@ -65,7 +66,7 @@ class DoOR(object):
 
 
     def get_dorsal_data(self):
-        '''
+        """
         Returns a subset of the original data, that just contains the response of receptors that map to dorsal glomeruli.
 
         Returns
@@ -79,7 +80,7 @@ class DoOR(object):
         odorants:   numpy.array
                     list of odorant names
 
-        '''
+        """
         dorsal_gloms = []
         path_to_csv = os.path.join(self.path, "glom_dorsal.csv")
         with open(path_to_csv, 'rU') as csvfile:
@@ -100,7 +101,7 @@ class DoOR(object):
         print self.rep2glom[del_mask, 1:3]
         print "NOT FOUND: ", np.setdiff1d(dorsal_gloms, np.unique(self.rep2glom[glom_mask, 2]))
         print "FOUND (%i)" % (len(self.rep2glom[glom_mask]))
-        print self.rep2glom[glom_mask, 1:3]
+        print np.array2string(self.rep2glom[glom_mask, 1:3])
 
         # get indices for ORs which are mapped to a dorsal glom
         ors_mask = np.in1d(self.or_names, self.rep2glom[glom_mask, 1])
@@ -108,7 +109,7 @@ class DoOR(object):
         return self.response[ors_mask, :], self.or_names[ors_mask], self.odorant_names
 
     def molId_to_name(self, indices):
-        '''
+        """
         Maps molIds to names and returns the list.
 
         Parameters
@@ -120,8 +121,8 @@ class DoOR(object):
         -------
         odorants:   numpy.array
                     list of corresponding names
-        '''
+        """
         with open(os.path.join(self.path, 'molname.pckl'), 'receptor_index') as f:
             mol2name = pickle.load(f)
 
-        return np.asarray([mol2name[i] for i in indices])
+        return np.asarray([mol2name[i][0] for i in indices])

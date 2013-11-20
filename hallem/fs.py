@@ -27,9 +27,12 @@ print "Score:", forward_result[features]
 print sub_list
 print feature_names[sub_list]
 
-title = 'Forward Selection of Hallem'
-path = "figures/hallem/fs/hallem_fs_" + str(features) + "_performance.png"
-toolbox.plot_progress_results(forward_result[::-1], features, path)
+#title = 'Forward Selection of Hallem'
+#path = "figures/hallem/fs/hallem_fs_" + str(features) + "_performance.png"
+#toolbox.plot_progress_results(forward_result[::-1], features, path)
+#
+#path = "figures/hallem/fs/hallem_fs_" + str(features) + ".png"
+#toolbox.plot_fingerprints(title, feature_names[sub_list], data[:, sub_list], data_names, path)
 
-path = "figures/hallem/fs/hallem_fs_" + str(features) + ".png"
-toolbox.plot_fingerprints(title, feature_names[sub_list], data[:, sub_list], data_names, path)
+m = np.column_stack((np.arange(0, len(feature_names) + 1), forward_result))
+np.savetxt("../results/fs_features.csv", m, delimiter=";")

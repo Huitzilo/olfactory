@@ -1,55 +1,47 @@
 """
-Measuring running time of BE
+Performance Test for Backward Elimination.
+
+In this performance setup, the time and score of BE is tracked for different number of data and features.
+The goal is to analyse which of the two parameters has a bigger impact on the running time and to compare that to gurobi.
 """
 import numpy as np
 import featureselection
 import time
 import csv
+import sample_generator
+from data import Hallem
+
+hallem = Hallem()
+data = np.transpose(hallem.response)
+
+size_data = [8, 16, 32, 64, 128]
+size_feat = [8, 16, 32, 64, 128]
+times = np.zeros((len(size_data), len(size_feat)))
+scores = np.zeros((len(size_data), len(size_feat)))
+
+rounds = 5
 
 
-def load_toydata_file(samples=5, features=100):
-    path_to_csv = "toydata/" + str(samples) + "_" + str(features) + ".csv"
-    data = []
-    with open(path_to_csv) as csvfile:
-        reader = csv.reader(csvfile, delimiter=',')
+def write_csv(f, matrix):
+    x = np.column_stack((np.transpose(size_data), matrix))
+    v = np.hstack(["Size", size_feat])
 
-        for row in reader:
-            data.append(row)
-
-    return np.asarray(data, dtype=float)
+    with open(f, 'wb') as ff:
+        writer = csv.writer(ff, delimiter=";")
+        writer.writerow(v)
+        writer.writerows(x)
 
 
-be_times = []
-be_scores = []
+for k in range(1, rounds + 1):
+    for i, v_i in enumerate(size_data):
+        for j, v_j in enumerate(size_feat):
+            print k, i, j
+            d = sample_generator.generate_random_data(v_i, v_j)
+            start = time.time()
+            feature_list, backward_result = featureselection.backward_elimination(d)
+            stop = time.time()
+            times[i, j] += stop - start
+            scores[i, j] += backward_result[-v_j / 2]
 
-for i in range(0, 5):
-
-    be_scores_v = []
-    be_times_v = []
-
-    for j in range(0, 5):
-        samples = 10 * (2 ** i)
-        features = 10 * (2 ** j)
-
-        print samples, features
-
-        score_pos = features / 10
-
-        data = load_toydata_file(samples, features)
-        start = time.time()
-        feature_list, backward_result = featureselection.backward_elimination(data)
-        stop = time.time()
-
-        be_times_v.append(stop - start)
-        be_scores_v.append(backward_result[-score_pos])
-
-
-        #print "\n", stop - start, "sec"
-    be_times.append(be_times_v)
-    be_scores.append(be_scores_v)
-
-be_times = np.asarray(be_times)
-be_scores = np.asarray(be_scores)
-# print data.shape
-np.savetxt("be_perforrmance_times.csv", be_times, delimiter=",")
-np.savetxt("be_perforrmance_scores.csv", be_scores, delimiter=",")
+            write_csv("../results/be_times_pew.csv", times / k)
+            write_csv("../results/be_scores_pew.csv", scores / k)

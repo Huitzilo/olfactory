@@ -55,7 +55,7 @@ def plot_progress_results(result, features, path, plot_hline=True):
 def plot_fingerprints(title, feature_names, data, data_names, path, xlabel="spikes/s"):
     features = len(feature_names)
 
-    fig = pl.figure(figsize=(18, 12), dpi=300, facecolor='w', edgecolor='k')
+    fig = pl.figure(figsize=(12, 8), dpi=300, facecolor='w', edgecolor='k')
     fig.autofmt_xdate()
 
     # plotting dendrogram of eucledean distance between glomeruli

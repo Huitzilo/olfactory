@@ -1,0 +1,38 @@
+{% extends "layout.html" %}
+{% block head %}
+{{ super() }}
+<script src="{{ url_for('static', filename='dropzone.js') }}"></script>
+<script type="application/javascript">
+
+    function showCsvInformation() {
+        $("#form").remove()
+        $("#content").appends("<div>hallo</div>")
+    }
+
+    Dropzone.options.myAwesomeDropzone = {
+        paramName: "file", // The name that will be used to transfer the file
+        maxFilesize: 2, // MB
+        maxFiles: 1,
+        init: function () {
+            this.on("complete", function (file) {
+                if (this.filesQueue.length == 0 && this.filesProcessing.length == 0) {
+                    showCsvInformation();
+                }
+            });
+            this.on("addedfile", function (file) {
+                alert("Added file.");
+            });
+        }
+    };
+</script>
+{% endblock %}
+{% block content %}
+<div class="span12">
+    <h2>Upload new File</h2>
+
+    <form id="form" action="/fs/upload" method=post enctype=multipart/form-data class="dropzone"
+          id="my-awesome-dropzone">
+        <input type=file name=file style="visibility:hidden">
+    </form>
+</div>
+{% endblock %}

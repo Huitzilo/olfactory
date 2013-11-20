@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # encoding: utf-8
-'''
+"""
     Compute the correlation one-to-all  of a specified odorant.
-'''
+"""
 from data import Hallem
 import scipy as sp
 import pylab as pl

@@ -7,8 +7,11 @@ import numpy as np
 import featureselection
 from hallem.data import Hallem
 import toolbox
+import sample_generator
+from scipy.spatial import distance
 
 hallem = Hallem()
+
 data = np.transpose(hallem.response) # Glomeruli x Odorants instead of Odorants x Glomeruli
 
 feature_names = hallem.odorant_list
@@ -23,10 +26,14 @@ print "Score:", backward_result[-features - 1]
 print sub_list
 print feature_names[sub_list]
 
-title = 'Backward Elimination on Hallem with ' + str(features) + " features"
+title = 'Backward Elimination on Hallem'
 
-path = "figures/hallem/be/hallem_be_" + str(features) + "_performance.png"
-toolbox.plot_progress_results(backward_result, features, path)
+#path = "figures/hallem/be/hallem_be_" + str(features) + "_performance.png"
+#toolbox.plot_progress_results(backward_result, features, path)
 
-path = "figures/hallem/be/hallem_be_" + str(features) + ".png"
-toolbox.plot_fingerprints(title, feature_names[sub_list], data[:, sub_list], data_names, path)
+#path = "figures/hallem/be/hallem_be_" + str(features) + ".png"
+#toolbox.plot_fingerprints(title, feature_names[sub_list], data[:, sub_list], data_names, path)
+
+
+#m = np.column_stack((np.arange(0, 64 + 1),backward_result[::-1]))
+#np.savetxt("../results/be_features_random.csv", m, delimiter=";")

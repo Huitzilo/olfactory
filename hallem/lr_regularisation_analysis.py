@@ -3,7 +3,7 @@
 
 
 import datetime
-
+import validation
 import numpy as np
 from sklearn.linear_model import LogisticRegression
 import matplotlib.pyplot as pl
@@ -17,7 +17,7 @@ data = np.transpose(hallem.response)
 
 print data.shape
 
-big_matrix, labels = toydata.generate_noise_samples_hallem()
+big_matrix, labels = toydata.generate_noise_samples(data)
 
 c_range = np.arange(0.001, 0.008, 0.00001)
 f = []
@@ -109,7 +109,7 @@ for index in indices:
     lr.fit(data[:, odorants], range(data.shape[0]))
     a = []
     for sd in sd_range:
-        samples, labels = toydata.generate_noise_samples_hallem(noise=sd)
+        samples, labels = toydata.generate_noise_samples(data, noise=sd)
 
         c = 1000
         output = lr.predict(samples[:, odorants])
@@ -143,7 +143,7 @@ pl.suptitle("NN-Classification with features predicted by LR")
 # ax.view_init(azim=315)
 
 ax2 = fig.add_subplot(111)
-im = ax2.imshow(np.transpose(Z), cmap='YlGnBu', interpolation='none', aspect='auto')
+im = ax2.imshow(np.transpose(Z), cmap=validation.cmap, interpolation='none', aspect='auto')
 ax2.set_ylabel('sd noise')
 ax2.set_xlabel('#features')
 ax2.xaxis.set_ticklabels(l)
@@ -153,4 +153,4 @@ ax2.yaxis.set_ticks(np.arange(len(sd_range)))
 cb = pl.colorbar(im, orientation='vertical')
 cb.set_label("accuracy")
 
-pl.savefig("figures/lr_performance_" + datetime.datetime.now().strftime("%Y_%m_%d") + ".png")
+pl.savefig("../figures/lr_performance_" + datetime.datetime.now().strftime("%Y_%m_%d") + ".png")

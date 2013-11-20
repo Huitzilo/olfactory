@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-'''
+"""
     Generates a linear programming problem to find the optimal subset for the Hallem data an solves it actually.
 
     Call this script from the gurobi shell, e.g.
@@ -7,7 +7,7 @@
 
 
     Purpose of this script is to find the maximal distance for a given number of features.
-'''
+"""
 # encoding: utf-8
 from gurobipy import *
 from data import Hallem
@@ -29,7 +29,7 @@ for i, x in enumerate(data):
         matrix.append(np.power(data[i] - data[j], 2))
 
 matrix = np.asarray(matrix)
-number_features = 15
+number_features = 2
 
 try:
     # Create a new model
@@ -50,8 +50,8 @@ try:
     odorants_exp = LinExpr()
     for v in vars[:-1]:
         odorants_exp += v
-
     m.addConstr(odorants_exp, GRB.EQUAL, number_features)
+
     for row in matrix:
         row_exp = LinExpr()
         for i in range(len(row)):
@@ -71,7 +71,7 @@ try:
     for v in m.getVars():
         x.append(v.x)
 
-    print 'Obj:', m.objVal, np.sqrt(m.objVal)
+    print 'Obj:', m.objVal, str(np.sqrt(m.objVal)).replace(".", ",")
 
     features_names = hallem.odorant_list
 
@@ -80,7 +80,7 @@ try:
     # features_names = np.delete(features_names, r_index)
 
     print np.where(np.asarray(x) == 1.0)[0]
-    print features_names[np.where(np.asarray(x) == 1.0)[0]]
+    #print features_names[np.where(np.asarray(x) == 1.0)[0]]
 
 except GurobiError:
     print 'Error reported'

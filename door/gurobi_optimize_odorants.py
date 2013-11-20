@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 # encoding: utf-8
-'''
+"""
     Generates a linear programming problem to find the optimal subset for the dorsal DoOR data an solves it actually.
 
     Call this script from the gurobi shell, e.g.
         gurobi.sh gurobi_optimize_odorants.py
 
     Purpose of this script is to find the minimal number of odorants required to have a minimal distance.
-'''
+"""
 from gurobipy import *
 import numpy as np
 from data import DoOR
@@ -55,7 +55,6 @@ try:
         m.addConstr(row_exp, GRB.GREATER_EQUAL, minimal_distance ** 2)
 
     m.update()
-    m.write("odorants.lp")
     m.optimize()
 
     if m.status == GRB.OPTIMAL:

@@ -4,11 +4,12 @@
 Implementation of feature selection methods backward elimination or forward selection.
 """
 import numpy as np
+import doctest
 from scipy.spatial import distance
 
 
 def findBestValue(distanceMatrix, k=0):
-    '''
+    """
         Returns the k-th minimal value of a given distance matrix.
 
         Parameters
@@ -22,12 +23,17 @@ def findBestValue(distanceMatrix, k=0):
                         if k=1, its, the second smallest value
                         etc.
 
-    '''
+        >>> findBestValue([3, 10, 2, 7])
+        2
+
+        >>> findBestValue([3, 10, 2, 7], 2)
+        7
+    """
     return np.sort(distanceMatrix)[k]
 
 
 def compute_distance_matrix(matrix, metric='euclidean', noise_threshold=None):
-    '''
+    """
         Computes the pairwise distance matrix between each row of the input matrix.
 
         Parameters
@@ -39,7 +45,7 @@ def compute_distance_matrix(matrix, metric='euclidean', noise_threshold=None):
                 possible values 'euclidean', 'noisy'
                 'noisy': computes the pairwise euclidean distance but whenever a elemental value is below the threshold,
                  it is set to zero
-    '''
+    """
     if metric == 'noisy':
 
         m, n = matrix.shape
@@ -86,6 +92,21 @@ def backward_elimination(data, distance_measure='euclidean'):
         A list of the indices in the order they where removed from the feature set.
     br : list
         A list of the optimal values after a feature was removed.
+
+    Example
+    -------
+    Given a matrix with three odorants and four receptors.
+    5   10    4
+    7   5    7
+    8   3   12
+    1   1   9
+
+    Forward selection should return a list of odorants with the most important feature at the beginning
+    and a list that contains the distances computed with 0 features up to n-features.
+
+    >>> backward_elimination(np.array([[5, 10, 4], [7, 5, 7], [8, 3, 12], [1, 1, 9]]))
+    ([0, 1, 2], [5.4772255750516612, 3.6055512754639891, 0.0, 0.0])
+
     """
     columns = len(data[0])
 
@@ -142,14 +163,29 @@ def forward_selection(data, distance_measure='euclidean'):
         A list of the indices in the order they where added to the feature set.
     fr : list
         A list of the optimal values after a feature was included.
+
+
+    Example
+    -------
+    Given a matrix with three odorants and four receptors.
+    5   10    4
+    7   5    7
+    8   3   12
+    1   1   9
+
+    Forward selection should return a list of odorants with the most important feature at the beginning
+    and a list that contains the distances computed with 0 features up to n-features.
+
+    >>> forward_selection(np.array([[5, 10, 4], [7, 5, 7], [8, 3, 12], [1, 1, 9]]))
+    ([0, 2, 1], [0, 0, 3.6055512754639891, 5.4772255750516612])
+
     """
+
     f = []
-    fr = [0, 0] #because no features or one feature will have no distance ;)
+    fr = [0, 0]  # because no features or one feature will have no distance
     columns = len(data[0])
 
-    #
     # find initial best tuple
-    #
     max_value = -1
     index = -1
 
@@ -189,3 +225,7 @@ def forward_selection(data, distance_measure='euclidean'):
         fr.append(max_value)
 
     return f, fr
+
+
+if __name__ == "__main__":
+    doctest.testmod()

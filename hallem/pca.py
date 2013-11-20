@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # encoding: utf-8
-'''
+"""
 John Doe PCA, simple stuff, simple plot
-'''
+"""
 
 from data import Hallem
 import numpy as np

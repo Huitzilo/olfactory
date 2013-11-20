@@ -1,69 +1,38 @@
-import pickle
-import csv
-import numpy as np
+#!/usr/bin/env python
+# encoding: utf-8
+"""
+Forward Selection on dorsal subset of DoOR data.
+"""
+from door.data import DoOR
 import featureselection
 import toolbox
 
-# preparing the data
-global csvfile, reader, row
-f = open('data/DoOR_resp.pckl', 'receptor_index')
-data = pickle.load(f)
-f.close()
+door = DoOR()
 
-f = open('data/molname.pckl', 'receptor_index')
-mol2name = pickle.load(f)
-f.close()
+data, ors, odorants = door.get_dorsal_data()
 
-dorsal_or_names = []
-path_to_csv = "data/glom_dorsal.csv"
-with open(path_to_csv, 'rU') as csvfile:
-    reader = csv.reader(csvfile, delimiter=';')
-    for row in reader:
-        dorsal_or_names.append(row[0])
+features = 10
+feature_list, forward_results = featureselection.forward_selection(data)
+sub_list = feature_list[:features]
 
-rep2glom = []
-path_to_csv = "data/receptor2glom.csv"
-with open(path_to_csv, 'rU') as csvfile:
-    reader = csv.reader(csvfile, delimiter=',')
-    reader.next(),
-    for row in reader:
-        rep2glom.append(row)
+print forward_results
+for i in range(20):
+    print forward_results[i]
 
-rep2glom = np.asarray(rep2glom)
+print "Top", str(features), "features"
+print "Score:", forward_results[-features - 1]
+print feature_list
+print sub_list
+print odorants[sub_list]
 
-# get the index of the dorsal names in rep2glom mapping
-dorsal_index = np.in1d(rep2glom[:, 2], dorsal_or_names)
-
-# get the index of the dorsal gloms in the data
-dorsal_index = np.in1d(data['receptorid'], rep2glom[dorsal_index, 1])
-
-# just taking the dorsal responses into account
-response = np.transpose(np.asarray(data['resp']))[dorsal_index]
-
-# replacing nan with 0
-response[np.where(np.isnan(response))] = 0
-print "number of features: ", len(response[0])
-print "number of datasets: ", len(response[:, 0])
-
-f, fr = featureselection.forward_selection(response)
-
-features = 5
-
-path = "figures/door_fs_min_" + str(features) + ".png"
-title = 'Forward Selection of DoOr'
-
-feature_names = []
-for i in np.asarray(data['molid']):
-    feature_names.append(mol2name[int(i)][0])
-
-feature_names = np.asarray(feature_names)
-
-data_names = np.asarray(data['receptorid'])[dorsal_index]
+xxx = forward_results[-features - 1:]
+for i in xxx[::-1]:
+    print str(i).replace(".", ",")
 
 
-# reversing for plotting
-f = f[::-1]
-fr = fr[::-1]
 
-toolbox.plot_progress_results(fr, title, "figures/door_fs_progress.png")
-toolbox.plot_fingerprints(title, feature_names, response, data_names, path)
+# title = 'Backward Elimination of DoOr with %i features' % (features)
+# path = "../figures/door/be/door_be_progress.png"
+# toolbox.plot_progress_results(forward_results, features, path)
+# path = "../figures/door/be/door_be_min_" + str(features) + ".png"
+# toolbox.plot_fingerprints(title, odorants[sub_list], data[:, sub_list], ors, path, "DoOR units")

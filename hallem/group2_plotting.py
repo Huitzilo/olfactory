@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # encoding: utf-8
-'''
+"""
     When removing a single odorant before using the BE methods, then often the result is the same (80%) when compared
     to using the full feature set and finding the top 6 features.
     In 3% of the cases, the results are better, and in ~12% the results are worse.
@@ -9,7 +9,7 @@
     The odorants that were removed are: butanal, methylbenzoat and 1-pentanol.
 
     What do they have in common?
-'''
+"""
 from hallem.data import Hallem
 import pylab as pl
 import numpy as np

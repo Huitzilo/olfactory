@@ -1,8 +1,8 @@
-'''
+"""
 Created on Mar 28, 2012
 
 @author: jan
-'''
+"""
 import numpy as np
 from scipy.stats import norm, gamma
 from scipy.spatial.distance import squareform
@@ -11,7 +11,7 @@ from numpy.random import normal
 
 
 def correlated_samples(cov, num_sampl, marginal_dist):
-    ''' create correlated samples with a gaussian copula '''
+    """ create correlated samples with a gaussian copula """
 
     # Create Gaussian Copula
     dependence = np.random.multivariate_normal([0] * cov.shape[0], cov, num_sampl)
@@ -24,11 +24,11 @@ def correlated_samples(cov, num_sampl, marginal_dist):
 
 
 def group_covmtx(rho_intra, rho_inter, num_groups, num_objects):
-    ''' create a covarince matrix with groups
+    """ create a covarince matrix with groups
     
     in each group are num_objects with a covariance of rho_intra. 
     objects between groups have a covariance of rho_intra 
-    '''
+    """
 
     intra_mtx_size = (num_objects ** 2 - num_objects) / 2
     intra_cov = 1 - squareform([1 - rho_intra] * intra_mtx_size)
@@ -49,17 +49,19 @@ def adjusted_gamma(mean, var):
     return gamma(shape, scale=scale)
 
 
-def generate_noise_samples_hallem(samples=100, noise=10):
+def generate_noise_samples(data, samples=100, noise=10):
     """
-    Generates a given number of labeled samples. Samples are based on Hallem data to which noise is added.
+    Generates a given number of labeled samples. Samples are based on data to which noise is added.
 
     Parameters
     ----------
+    data:       numpy.array
+                Data matrix.
     samples:    int
-                Number of samples to generate. default=100
+                (default=100) Number of samples to generate.
     noise:      float
-                Noise level that will be added to real data. Noise is generated with normal distribution.
-                Normally one should use the standard deviation as a level for noise. default=10.
+                (default = 10) Noise level that will be added to real data. Noise is generated with normal distribution.
+                Normally one should use the standard deviation as a level for noise.
 
     Returns
     -------
@@ -69,9 +71,6 @@ def generate_noise_samples_hallem(samples=100, noise=10):
                 A list containing the labels for the generated data. Can be used for training in machine learning algorithms.
 
     """
-
-    hallem = Hallem()
-    data = np.transpose(hallem.response)
     big_matrix = []
 
     size = data.shape[1]
@@ -89,3 +88,7 @@ def generate_noise_samples_hallem(samples=100, noise=10):
 
     big_matrix = np.asarray(big_matrix)
     return big_matrix, labels
+
+
+def generate_random_data(data, features):
+    return np.random.randint(0, 200, (data, features))
